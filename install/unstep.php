@@ -16,7 +16,10 @@ if ($GLOBALS["uninstall_step"] == 2):
 	}
 	else
 	{
-		$message = new CAdminMessage(GetMessage("MOD_INST_OK"));
+		$message = new CAdminMessage(array(
+			"TYPE" => "OK",
+			"MESSAGE" => GetMessage("MOD_UNINST_OK"),
+		));
 	}
 
 	echo $message->Show();

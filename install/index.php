@@ -16,7 +16,7 @@ class imaweb_tools extends CModule
 
 	var $errors;
 
-	function imaweb_tools()
+	function __construct()
 	{
 		$arModuleVersion = array();
 
@@ -76,13 +76,71 @@ class imaweb_tools extends CModule
 		return true;
 	}
 
+	private function getDirPath($path, $noDocRoot = false)
+	{
+		$path2 = $_SERVER["DOCUMENT_ROOT"]."/local/" . $path;
+		if (!is_dir($path2))
+		{
+			var_dump($path2);
+			$path2 = $_SERVER["DOCUMENT_ROOT"]."/bitrix/" . $path;
+
+			if ($noDocRoot)
+			{
+				return 'bitrix/' . $path;
+			}
+
+			return $path2;
+		}
+
+		if (!is_dir($path2))
+		{
+			return false;
+		}
+
+		if ($noDocRoot)
+		{
+			return 'local/' . $path;
+		}
+
+		return $path2;
+	}
+
 	function InstallFiles()
 	{
+		// components
+		$path = $this->getDirPath("modules/" . $this->MODULE_ID . "/install/components");
+		if ($path === false)
+		{
+			return false;
+		}
+		CopyDirFiles($path, $_SERVER["DOCUMENT_ROOT"]."/local/components/imaweb", true, true);
+
+		// admin scripts
+		$path = $this->getDirPath("modules/" . $this->MODULE_ID . "/install/admin");
+		if ($path === false)
+		{
+			return false;
+		}
+		CopyDirFiles($path, $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
+
+
 		return true;
 	}
 
 	function UnInstallFiles()
 	{
+		// components
+		$path = $this->getDirPath("components/imaweb/social.links", true);
+		DeleteDirFilesEx($path);
+
+		// admin scripts
+		$path = $this->getDirPath("modules/" . $this->MODULE_ID . "/install/admin");
+		if ($path === false)
+		{
+			return false;
+		}
+		DeleteDirFiles($path, $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+
 		return true;
 	}
 
@@ -150,4 +208,3 @@ class imaweb_tools extends CModule
 		}
 	}
 }
-?>
