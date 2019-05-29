@@ -114,9 +114,9 @@ if ($RIGHT_W):
 
 	$aTabs = array(
 		array('DIV' => 'edit0', 'TAB' => GetMessage('IMAWEB_TOOLS_MAIN'), 'ICON' => '', 'TITLE' => GetMessage('IMAWEB_TOOLS_MAIN_SETTINGS')),
-		array('DIV' => 'edit1', 'TAB' => GetMessage('IMAWEB_TOOLS_GRE'), 'ICON' => '', 'TITLE' => GetMessage('IMAWEB_TOOLS_GRE')),
-		array('DIV' => 'edit2', 'TAB' => GetMessage('IMAWEB_TOOLS_SOC_LINKS'), 'ICON' => '', 'TITLE' => GetMessage('IMAWEB_TOOLS_SOC_LINKS')),
-		array('DIV' => 'edit2', 'TAB' => GetMessage('MAIN_TAB_RIGHTS'), 'ICON' => '', 'TITLE' => GetMessage('MAIN_TAB_TITLE_RIGHTS')),
+		array('DIV' => 'edit1', 'TAB' => GetMessage('IMAWEB_TOOLS_SOC_LINKS'), 'ICON' => '', 'TITLE' => GetMessage('IMAWEB_TOOLS_SOC_LINKS')),
+		array('DIV' => 'edit2', 'TAB' => GetMessage('IMAWEB_TOOLS_GRE'), 'ICON' => '', 'TITLE' => GetMessage('IMAWEB_TOOLS_GRE')),
+		array('DIV' => 'edit3', 'TAB' => GetMessage('MAIN_TAB_RIGHTS'), 'ICON' => '', 'TITLE' => GetMessage('MAIN_TAB_TITLE_RIGHTS')),
 	);
 	$tabControl = new CAdminTabControl('tabControl', $aTabs);
 

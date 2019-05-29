@@ -1,5 +1,8 @@
 # Module change history
 
+## 1.0.3 (May 30, 2019)
+- Options page bugfix
+
 ## 1.0.2 (March 21, 2019)
 - Added component social.links
 - Added social links settings to module options
