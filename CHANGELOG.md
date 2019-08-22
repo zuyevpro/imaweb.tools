@@ -1,5 +1,13 @@
 # Module change history
 
+## 1.0.4 (Aug 23, 2019)
+- Iblock type constants
+- Webform ID constants
+- Migration exception fix
+- Migrations exception logger
+- Migrations admin menu item (when dev mode enabled)
+- some code refactoring
+
 ## 1.0.3 (May 30, 2019)
 - Options page bugfix
 

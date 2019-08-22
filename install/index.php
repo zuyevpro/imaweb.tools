@@ -1,4 +1,6 @@
 <?
+use \Bitrix\Main\EventManager;
+
 global $MESS;
 IncludeModuleLangFile(__FILE__);
 
@@ -38,7 +40,7 @@ class imaweb_tools extends CModule
 
 	function InstallDB()
 	{
-		global $DB, $APPLICATION;
+//		global $DB, $APPLICATION;
 		$this->errors = false;
 
 		RegisterModule($this->MODULE_ID);
@@ -56,22 +58,24 @@ class imaweb_tools extends CModule
 
 	function InstallEvents()
 	{
-		$em = \Bitrix\Main\EventManager::getInstance();
+		$em = EventManager::getInstance();
 
 		$em->registerEventHandlerCompatible('main', 'OnEpilog', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "AddCustomScriptOrStyle");
 		$em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "CheckReCaptcha");
 		$em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineIblockConstants");
+		$em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineWebFormConstants");
 		$em->registerEventHandlerCompatible('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "SetDefaultIblockRights");
 		return true;
 	}
 
 	function UnInstallEvents()
 	{
-		$em = \Bitrix\Main\EventManager::getInstance();
+		$em = EventManager::getInstance();
 
 		$em->unRegisterEventHandler('main', 'OnEpilog', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "AddCustomScriptOrStyle");
 		$em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "CheckReCaptcha");
 		$em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineIblockConstants");
+		$em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineWebFormConstants");
 		$em->unRegisterEventHandler('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "SetDefaultIblockRights");
 		return true;
 	}
@@ -146,7 +150,7 @@ class imaweb_tools extends CModule
 
 	function DoInstall()
 	{
-		global $DB, $APPLICATION, $step;
+		global $APPLICATION, $step;
 		$step = IntVal($step);
 		if ($step < 2)
 		{
@@ -178,7 +182,7 @@ class imaweb_tools extends CModule
 
 	function DoUninstall()
 	{
-		global $DB, $APPLICATION, $step;
+		global $APPLICATION, $step;
 
 		if ($step < 2)
 		{

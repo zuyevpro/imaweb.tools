@@ -1,4 +1,12 @@
 <?
+/**
+ * @global string $REQUEST_METHOD
+ * @global string $Apply
+ * @global string $Update
+ * @global string $RestoreDefaults
+ */
+use \Bitrix\Main\Loader;
+
 $module_id = 'imaweb.tools';
 $MODULE_RIGHT = $APPLICATION->GetGroupRight($module_id);
 $RIGHT_W = $MODULE_RIGHT>="R";
@@ -120,7 +128,7 @@ if ($RIGHT_W):
 	);
 	$tabControl = new CAdminTabControl('tabControl', $aTabs);
 
-	\Bitrix\Main\Loader::includeModule($module_id);
+	Loader::includeModule($module_id);
 
 	if ($REQUEST_METHOD == 'POST' && strlen($Update.$Apply.$RestoreDefaults) > 0 && $RIGHT_W && check_bitrix_sessid())
 	{
@@ -173,34 +181,52 @@ if ($RIGHT_W):
 		<?foreach ($arAllOptions1 as $key => $arOptionGroup):
 			foreach ($arOptionGroup as $arOption):
 				$val = COption::GetOptionString($module_id, $arOption[0]);
+
+				$paramHtmlId = 'param_' . rand(1,99999);
 		?>
 			<?if ($arOption[2][0] == 'string'):?>
 			<tr>
-				<td><?=$arOption[1]?></td>
 				<td>
-					<input type="text" name="<?=$arOption[0]?>" value="<?=$val?>" style="width: 308px;" />
+					<label for="<?=$paramHtmlId?>">
+						<?=$arOption[1]?>
+					</label>
+				</td>
+				<td>
+					<input type="text" name="<?=$arOption[0]?>" value="<?=$val?>" style="width: 308px;" id="<?=$paramHtmlId?>" />
 				</td>
 			</tr>
 			<?elseif ($arOption[2][0] == 'password'):?>
 			<tr>
-				<td><?=$arOption[1]?></td>
 				<td>
-					<input type="password" name="<?=$arOption[0]?>" value="<?=$val?>" style="width: 308px;" />
+					<label for="<?=$paramHtmlId?>">
+						<?=$arOption[1]?>
+					</label>
+				</td>
+				<td>
+					<input type="password" name="<?=$arOption[0]?>" value="<?=$val?>" style="width: 308px;" id="<?=$paramHtmlId?>" />
 				</td>
 			</tr>
 			<?elseif ($arOption[2][0] == 'checkbox'):?>
 			<tr>
-				<td><?=$arOption[1]?></td>
 				<td>
-					<input type="checkbox" name="<?=$arOption[0]?>"<?if ($val == "Y"):?> checked<?endif;?> />
+					<label for="<?=$paramHtmlId?>">
+						<?=$arOption[1]?>
+					</label>
+				</td>
+				<td>
+					<input type="checkbox" name="<?=$arOption[0]?>"<?if ($val == "Y"):?> checked<?endif;?> id="<?=$paramHtmlId?>" />
 					<div style="width: 350px; height: 1px;"></div>
 				</td>
 			</tr>
 			<?elseif ($arOption[2][0] == 'select'):?>
 			<tr>
-				<td><?=$arOption[1]?></td>
 				<td>
-					<select name="<?=$arOption[0]?>" style="width: 320px;">
+					<label for="<?=$paramHtmlId?>">
+						<?=$arOption[1]?>
+					</label>
+				</td>
+				<td>
+					<select name="<?=$arOption[0]?>" style="width: 320px;" id="<?=$paramHtmlId?>">
 						<option value=""></option>
 						<?foreach($arOption[2]['values'] as $value => $valueTitle):?>
 							<option value="<?=$value?>"<?if ($val == $value):?> selected<?endif?>><?=$valueTitle?></option>

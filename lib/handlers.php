@@ -1,8 +1,11 @@
 <?php
 namespace Imaweb\Tools;
 
-use \Bitrix\Main\Config\Option;
-use \Bitrix\Main\Page\Asset;
+use \Bitrix\Main\Config\Option,
+	Bitrix\Main\Loader,
+	\Bitrix\Main\Page\Asset,
+	\Bitrix\Main\Web\HttpClient,
+	\Bitrix\Iblock\IblockTable;
 
 abstract class Handlers
 {
@@ -50,7 +53,7 @@ abstract class Handlers
 						}
 					}
 
-					$client = new \Bitrix\Main\Web\HttpClient();
+					$client = new HttpClient();
 
 					$response = $client->post('https://www.google.com/recaptcha/api/siteverify', array(
 						'secret' => Option::get('imaweb.tools', 'gre_secret'),
@@ -87,19 +90,44 @@ abstract class Handlers
 
     public static function defineIblockConstants()
     {
-        if (\Bitrix\Main\Loader::includeModule('iblock'))
+        if (Loader::includeModule('iblock'))
         {
-            $result = \Bitrix\Iblock\IblockTable::getList(array(
+            $result = IblockTable::getList(array(
                 'select' => array('ID', 'IBLOCK_TYPE_ID', 'CODE'),
             ));
             while ($row = $result->fetch())
             {
-                $CONSTANT = ToUpper(implode('_', array('IBLOCK', $row['IBLOCK_TYPE_ID'], $row['CODE'])));
+                $CONSTANT = ToUpper(implode('_', array('IBLOCK', $row['IBLOCK_TYPE_ID'])));
                 if (!defined($CONSTANT))
                 {
                     define($CONSTANT, $row['ID']);
                 }
+
+	            $CONSTANT = ToUpper(implode('_', array('IBLOCK', $row['IBLOCK_TYPE_ID'], $row['CODE'])));
+	            if (!defined($CONSTANT))
+	            {
+		            define($CONSTANT, $row['ID']);
+	            }
             }
         }
     }
+
+	public static function defineWebFormConstants()
+	{
+		if (Loader::includeModule('form'))
+		{
+			$by = 'id';
+			$order = 'asc';
+			$isFiltered = false;
+			$res = \CForm::GetList($by, $order, array(), $isFiltered);
+			while ($r = $res->GetNext())
+			{
+				$CONSTANT = ToUpper(implode('_', array('WEBFORM', $r['SID'])));
+				if (!defined($CONSTANT))
+				{
+					define($CONSTANT, $r['ID']);
+				}
+			}
+		}
+	}
 }

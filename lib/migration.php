@@ -1,6 +1,9 @@
 <?php
 namespace Imaweb\Tools;
 
+use Bitrix\Main\Config\Option,
+	\Bitrix\Main\Application;
+
 interface IMigration
 {
 	public function up();
@@ -20,7 +23,7 @@ class Migration
 	 */
 	public static function add(string $name)
 	{
-		$docRoot = \Bitrix\Main\Application::getDocumentRoot();
+		$docRoot = Application::getDocumentRoot();
 		$doneDir = $docRoot . self::$migrationsDir . 'done/';
 		$processDir = $docRoot . self::$migrationsDir . 'process/';
 		CheckDirPath($doneDir);
@@ -52,7 +55,7 @@ class Migration
 
 	public static function getList()
 	{
-		$docRoot = \Bitrix\Main\Application::getDocumentRoot();
+		$docRoot = Application::getDocumentRoot();
 		$doneDir = $docRoot . self::$migrationsDir . 'done/';
 		$processDir = $docRoot . self::$migrationsDir . 'process/';
 
@@ -60,7 +63,6 @@ class Migration
 		CheckDirPath($processDir);
 
 		$arFiles = glob($processDir.  '*');
-		$arDoneFiles = glob($doneDir . '*');
 
 		$arResult = array();
 		foreach ($arFiles as $migrationFile)
@@ -124,9 +126,12 @@ class Migration
 	 */
 	public static function run($migrate = true)
 	{
-		$docRoot = \Bitrix\Main\Application::getDocumentRoot();
+		$docRoot = Application::getDocumentRoot();
 		$doneDir = $docRoot . self::$migrationsDir . 'done/';
 		$processDir = $docRoot . self::$migrationsDir . 'process/';
+
+		$logger = Logger::getInstance('migration');
+		$logger->enabled(Option::get('main', 'update_devsrv') == 'Y');
 
 		CheckDirPath($doneDir);
 		CheckDirPath($processDir);
@@ -137,9 +142,9 @@ class Migration
 		{
 			@require($migrationPath);
 
-			list($fileName, $extension) = explode('.', basename($migrationPath));
+			list($fileName) = explode('.', basename($migrationPath));
 
-			$id = substr($fileName, 0, 14);
+//			$id = substr($fileName, 0, 14);
 			$className = '\\Imaweb\\Tools\\Migrations\\' . substr($fileName, 15);
 
 			$methodName = $migrate ? 'up' : 'down';
@@ -148,7 +153,7 @@ class Migration
 			{
 				if (class_exists($className))
 				{
-					$conn = \Bitrix\Main\Application::getConnection();
+					$conn = Application::getConnection();
 					$instance = new $className();
 					if (method_exists($instance, $methodName))
 					{
@@ -158,9 +163,9 @@ class Migration
 							$instance->$methodName();
 							$success = true;
 						}
-						catch (Exception $e)
+						catch (\Exception $e)
 						{
-							//TODO: log?
+							$logger->error($e->getMessage());
 						}
 
 						if ($success)
@@ -192,7 +197,7 @@ class Migration
 
 	public static function clear()
 	{
-		$docRoot = \Bitrix\Main\Application::getDocumentRoot();
+		$docRoot = Application::getDocumentRoot();
 		$doneDir = $docRoot . self::$migrationsDir . 'done/';
 		$processDir = $docRoot . self::$migrationsDir . 'process/';
 

@@ -5,7 +5,7 @@ if (!function_exists('d'))
 {
 	function d($var, $var_dump = false)
 	{
-		return Imaweb\Tools\Main::d($var, $var_dump);
+		Imaweb\Tools\Main::d($var, $var_dump);
 	}
 }
 
@@ -13,7 +13,7 @@ if (!function_exists('x'))
 {
 	function x($var, $mode = 'w+', $file = 'x.txt')
 	{
-		return Imaweb\Tools\Main::x($var, $mode, $file);
+		Imaweb\Tools\Main::x($var, $mode, $file);
 	}
 }
 
