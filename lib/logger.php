@@ -31,7 +31,7 @@ class Logger
 
         if(!is_dir($this->baseDir))
         {
-            $res = mkdir($this->baseDir, 0755, true);
+            mkdir($this->baseDir, 0755, true);
         }
 
         $this->file = fopen($this->baseDir . $logName, 'a+');
@@ -122,15 +122,16 @@ class Logger
     public function error($msg)
     {
 
-
         //return $this->_log('error', $msg);
-        $this->_log('error', $msg);
+        $result = $this->_log('error', $msg);
         $ex = $this->app->GetException();
 
         if ($ex instanceof \CApplicationException)
         {
-            $this->_log('throw', 'Исключение: ' . $ex->GetString());
+            return $this->_log('throw', 'Исключение: ' . $ex->GetString());
         }
+
+        return $result;
     }
 
     /**
@@ -188,14 +189,14 @@ class Logger
             return $this->_enabled;
         }
 
-        $this->_enabled = $flag === true;
+        return $this->_enabled = $flag === true;
     }
 
 	public function cleanOldData($baseDir = null, $numDays = 30)
 	{
 		if (is_null($baseDir))
 		{
-			$baseDir = $this->_baseDir . '*/*/*/';
+			$baseDir = $this->baseDir . '*/*/*/';
 		}
 
 		$arFiles = glob($baseDir);

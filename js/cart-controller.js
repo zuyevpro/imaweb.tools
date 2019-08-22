@@ -3,7 +3,7 @@
         this.addUrl = '/ajax/cart/add/';
         this.updateUrl = '/ajax/cart/update/';
         this.removeUrl = '/ajax/cart/remove/';
-    }
+    };
 
     CartController.prototype.add = function (productId, quantity, callback)
     {
@@ -52,7 +52,7 @@
         }
 
         if (typeof (method) === 'string') {
-            if (method == 'add') {
+            if (method === 'add') {
                 $.fn._imawebCart.add.apply(this._imawebCart, Array.prototype.slice.call(arguments, 0).splice(1));
             }
             else if (method === 'update') {

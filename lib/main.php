@@ -146,16 +146,16 @@ abstract class Main
 	/**
 	 * Аналог CApplication::IncludeFile из Битрикса, но без лишних "наворотов".
 	 * @note Третий параметр $arFunctionParams не используется, но объявлен для совместимости с оригинальным методом.
+	 * @SupressWarning('Unused')
 	 */
 	public static function includeFile($rel_path, $arParams = array(), $arFunctionParams = array())
 	{
-		global $APPLICATION, $USER, $DB, $MESS, $DOCUMENT_ROOT;
+//		global $APPLICATION, $USER, $DB, $MESS, $DOCUMENT_ROOT;
 		if(substr($rel_path, 0, 1)!="/")
 		{
 			$path = BX_PERSONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/".$rel_path;
 			if(!file_exists($_SERVER["DOCUMENT_ROOT"].$path))
 			{
-				$sType = "DEFAULT";
 				$path = BX_PERSONAL_ROOT."/templates/.default/".$rel_path;
 				if(!file_exists($_SERVER["DOCUMENT_ROOT"].$path))
 				{
@@ -164,10 +164,8 @@ abstract class Main
 					if(strlen($module_id)>0)
 					{
 						$path = "/bitrix/modules/".$module_id."/install/templates/".$rel_path;
-						$sType = "MODULE";
 						if(!file_exists($_SERVER["DOCUMENT_ROOT"].$path))
 						{
-							$sType = "TEMPLATE";
 							$path = BX_PERSONAL_ROOT."/templates/".SITE_TEMPLATE_ID."/".$rel_path;
 						}
 					}
@@ -184,7 +182,11 @@ abstract class Main
 			if(is_array($arParams))
 				extract($arParams, EXTR_SKIP);
 
-			$res = include($_SERVER["DOCUMENT_ROOT"].$path);
+			include($_SERVER["DOCUMENT_ROOT"].$path);
+		}
+		else
+		{
+			return;
 		}
 	}
 
