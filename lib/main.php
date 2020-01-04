@@ -1,6 +1,17 @@
 <?php
 namespace Imaweb\Tools;
 
+use \Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
+use \Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
+use \CIBlockPropertyEnum;
+use \CIBlock;
+use \CIBlockProperty;
+use \CIBlockRights;
+use \CIBlockElement;
+use \CFile;
+
 abstract class Main
 {
 	/**
@@ -300,4 +311,225 @@ abstract class Main
 	{
 		return $_SERVER['REQUEST_METHOD'] == 'POST';
 	}
+
+    /**
+     * Method copies existing iblock, props and elements to other iblock type.
+     * @warn Method does not copy iblock sections!
+     * @param int $iblockId - source iblock id
+     * @param string $iblockType - target iblock type
+     * @param array $arSiteId - array of sites to bind the new iblock
+     * @param bool $bCopyRights - whether to copy rights settings. Default true.
+     * @param bool $bCopyProps - whether to copy iblock properties. Default true.
+     * @param bool $bCopyElements - whether to copy iblock elements. Default false.
+     * @return bool
+     */
+	public static function copyIblock($iblockId, $iblockType, $arSiteId, $bCopyRights = true, $bCopyProps = true, $bCopyElements = false)
+    {
+        $conn = Application::getConnection();
+
+        try {
+            Loader::includeModule('iblock');
+        }
+        catch (LoaderException $e)
+        {
+            return false;
+        }
+
+        $iblock = new CIblock;
+        $property = new CIBlockProperty();
+        $propEnumMapping = array(); // old id => new id
+
+        try {
+            $conn->startTransaction();
+        }
+        catch (SqlQueryException $e)
+        {
+            return false;
+        }
+
+        $success = true;
+
+        $arIblock = $iblock->GetByID($iblockId)->Fetch();
+
+        $arIblock['IBLOCK_TYPE_ID'] = $iblockType;
+        $arIblock['SITE_ID'] = $arSiteId;
+
+        $arPermissions = array();
+        if ($arIblock['RIGHTS_MODE'] == 'E' && $bCopyRights)
+        {
+            $iblockRights = new CIBlockRights($iblockId);
+            $arRights = $iblockRights->GetRights();
+            foreach ($arRights as $k => $v)
+            {
+                $arIblock['RIGHTS']['n' . $k] = $v;
+            }
+        }
+        elseif ($bCopyRights)
+        {
+            $arPermissions = $iblock->GetGroupPermissions($iblockId);
+        }
+
+        $newIblockId = $iblock->Add($arIblock);
+        if (!$newIblockId)
+        {
+            $success = false;
+        }
+
+        if ($success && $arIblock['RIGHTS_MODE'] == 'S' && $bCopyRights)
+        {
+            CIBlock::SetPermission($newIblockId, $arPermissions);
+        }
+
+        if ($success && $bCopyProps)
+        {
+            $obProperties = CIBlockProperty::GetList(array(), array(
+                'IBLOCK_ID' => $iblockId,
+            ));
+
+            while ($arProperty = $obProperties->Fetch())
+            {
+                $arProperty['IBLOCK_ID'] = $newIblockId;
+                $propId = $property->Add($arProperty);
+                if ($propId > 0)
+                {
+                    if ($arProperty['PROPERTY_TYPE'] == 'L')
+                    {
+                        $obEnum = CIBlockPropertyEnum::GetList(array(), array(
+                            'IBLOCK_ID' => $iblockId,
+                            'PROPERTY_ID' => $arProperty['ID'],
+                        ));
+
+                        while ($arEnum = $obEnum->Fetch())
+                        {
+                            $arEnum['PROPERTY_ID'] = $propId;
+                            $newEnumId = CIBlockPropertyEnum::Add($arEnum);
+                            $propEnumMapping[$arEnum['ID']] = $newEnumId;
+                        }
+                    }
+                }
+                else
+                {
+                    $success = false;
+                }
+            }
+
+            unset($obEnum, $arEnum, $arProperty, $propId);
+        }
+
+        if ($success && $bCopyElements)
+        {
+            $elem = new CIBlockElement();
+            $res = CIBlockElement::GetList(array(), array(
+                'IBLOCK_ID' => $iblockId,
+            ));
+
+            while ($r = $res->GetNextElement())
+            {
+                $arFields = $r->GetFields();
+
+                $arFields['IBLOCK_ID'] = $newIblockId;
+
+                if ($arFields['PREVIEW_PICTURE'] > 0)
+                {
+                    $arFields['PREVIEW_PICTURE'] = CFile::MakeFileArray($arFields['PREVIEW_PICTURE']);
+                }
+
+                if ($arFields['DETAIL_PICTURE'] > 0)
+                {
+                    $arFields['DETAIL_PICTURE'] = CFile::MakeFileArray($arFields['DETAIL_PICTURE']);
+                }
+
+                $arProps = $r->GetProperties();
+                $arFields['PROPERTY_VALUES'] = array();
+                foreach ($arProps as $propCode => $arProperty)
+                {
+                    if ($arProperty['PROPERTY_TYPE'] == 'F')
+                    {
+                        if ($arProperty['MULTIPLE'] == 'Y')
+                        {
+                            if (is_array($arProperty['VALUE']) && count($arProperty['VALUE']) > 0)
+                            {
+                                foreach ($arProperty['VALUE'] as $key => $fileId)
+                                {
+                                    $arFields['PROPERTY_VALUES'][$propCode]['n' . $key] = CFile::MakeFileArray($fileId);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if ($arProperty['VALUE'] > 0)
+                            {
+                                $arFields['PROPERTY_VALUES'][$propCode] = CFile::MakeFileArray($arProperty['VALUE']);
+                            }
+                        }
+                    }
+                    elseif ($arProperty['PROPERTY_TYPE'] == 'L')
+                    {
+                        if ($arProperty['MULTIPLE'] == 'Y')
+                        {
+                            foreach ($arProperty['VALUE'] as $key => $value)
+                            {
+                                $arFields['PROPERTY_VALUES'][$propCode][] = $propEnumMapping[$value];
+                            }
+                        }
+                        else
+                        {
+                            $arFields['PROPERTY_VALUES'][$propCode] = $propEnumMapping[$arProperty['VALUE_ENUM_ID']];
+                        }
+                    }
+                    else
+                    {
+                        $arFields['PROPERTY_VALUES'][$propCode] = $arProperty['VALUE'];
+                    }
+                }
+                unset($arFields['ID']);
+
+                foreach ($arFields as $k => $v)
+                {
+                    if (stristr($k, '~') || is_null($v))
+                    {
+                        unset($arFields[$k]);
+                    }
+                }
+
+                $eid = $elem->Add($arFields);
+                if (!$eid)
+                {
+                    $success = false;
+                }
+            }
+        }
+
+        if (!$success)
+        {
+            try {
+                $conn->rollbackTransaction();
+            }
+            catch (SqlQueryException $e)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            try {
+                $conn->commitTransaction();
+            }
+            catch (SqlQueryException $e)
+            {
+
+            }
+
+//            if (COption::GetOptionString("iblock", "event_log_iblock", "N") === "Y")
+//            {
+                //        global $USER;
+                //        CEventLog::Log("IBLOCK", "IBLOCK_COPY", "iblock", $iblockId, serialize(array(
+                //            "USER_ID" => $USER->GetID(),
+                //            "NEW_IBLOCK_ID" => $newIblockId,
+                //        )));
+//            }
+        }
+
+        return $success;
+    }
 }
