@@ -15,7 +15,7 @@ if (Loader::includeModule('imaweb.tools') && Option::get('main', 'update_devsrv'
 			"sort" => 1,
 			"text" => Loc::getMessage("IMAWEB_TOOLS_MIGRATIONS"),
 			"title" => Loc::getMessage("IMAWEB_TOOLS_MIGRATIONS_TITLE"),
-			"url" => "scid_tools_migrations.php?lang=" . LANGUAGE_ID,
+			"url" => "imaweb_tools_migrations.php?lang=" . LANGUAGE_ID,
 			"icon" => "update_menu_icon_partner",
 		);
 
