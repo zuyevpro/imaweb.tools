@@ -130,4 +130,21 @@ abstract class Handlers
 			}
 		}
 	}
+
+    function captchaChecking($WEB_FORM_ID, &$arFields, &$arrVALUES)
+    {
+        if (Option::get('imaweb.tools', 'gre_on') !== 'Y')
+        {
+            return;
+        }
+
+        global $APPLICATION;
+
+        // действие обработчика распространяется только на форму с ID=6
+        if (defined('RECAPTCHA_CHECKED') && !RECAPTCHA_CHECKED)
+        {
+            // если значение не подходит - отправим ошибку.
+            $APPLICATION->ThrowException('Проверка reCaptcha не пройдена');
+        }
+    }
 }
