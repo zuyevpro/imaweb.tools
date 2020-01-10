@@ -87,7 +87,6 @@ class imaweb_tools extends CModule
 		$path2 = $_SERVER["DOCUMENT_ROOT"]."/local/" . $path;
 		if (!is_dir($path2))
 		{
-			var_dump($path2);
 			$path2 = $_SERVER["DOCUMENT_ROOT"]."/bitrix/" . $path;
 
 			if ($noDocRoot)
