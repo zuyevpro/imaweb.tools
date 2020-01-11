@@ -490,6 +490,10 @@ abstract class Main
                             $arFields['PROPERTY_VALUES'][$propCode] = $propEnumMapping[$arProperty['VALUE_ENUM_ID']];
                         }
                     }
+                    elseif ($arProperty['PROPERTY_TYPE'] == 'S' && $arProperty['USER_TYPE'] == 'HTML')
+                    {
+                        $arFields['PROPERTY_VALUES'][$propCode]['VALUE'] = $arProperty['VALUE'];
+                    }
                     else
                     {
                         $arFields['PROPERTY_VALUES'][$propCode] = $arProperty['VALUE'];
