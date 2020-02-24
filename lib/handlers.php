@@ -140,10 +140,8 @@ abstract class Handlers
 
         global $APPLICATION;
 
-        // действие обработчика распространяется только на форму с ID=6
         if (defined('RECAPTCHA_CHECKED') && !RECAPTCHA_CHECKED)
         {
-            // если значение не подходит - отправим ошибку.
             $APPLICATION->ThrowException('Проверка reCaptcha не пройдена');
         }
     }
