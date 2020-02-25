@@ -382,6 +382,11 @@ abstract class Main
             $arPermissions = $iblock->GetGroupPermissions($iblockId);
         }
 
+        if (array_key_exists('API_CODE', $arIblock))
+        {
+            $arIblock['API_CODE'] = $arIblock['API_CODE'] . '_' . uniqid();
+        }
+
         $newIblockId = $iblock->Add($arIblock);
         if (!$newIblockId)
         {
