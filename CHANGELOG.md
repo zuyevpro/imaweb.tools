@@ -1,5 +1,12 @@
 # Module change history
 
+## 1.0.6 (Apr 9, 2020)
+- Install logger
+- Removed unused installer steps
+- Custom Asset class
+- copyIblock method, also fixed for Bitrix 20
+- iblock feedback component
+
 ## 1.0.4 (Aug 23, 2019)
 - Iblock type constants
 - Webform ID constants

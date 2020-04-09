@@ -1,5 +1,9 @@
 <?
-use \Bitrix\Main\EventManager;
+use Bitrix\Main\EventManager;
+use Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\ArgumentOutOfRangeException;
+use Bitrix\Main\ArgumentNullException;
 
 global $MESS;
 IncludeModuleLangFile(__FILE__);
@@ -126,6 +130,7 @@ class imaweb_tools extends CModule
 		{
 			return false;
 		}
+
 		CopyDirFiles($path, $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
 
 
@@ -144,6 +149,7 @@ class imaweb_tools extends CModule
 		{
 			return false;
 		}
+
 		DeleteDirFiles($path, $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 
 		return true;
@@ -153,63 +159,80 @@ class imaweb_tools extends CModule
 	{
 		global $APPLICATION, $step;
 		$step = IntVal($step);
-		if ($step < 2)
-		{
-			$GLOBALS['install_step'] = 1;
+        if ($this->InstallDB())
+        {
+            $this->InstallEvents();
+            $this->InstallFiles();
 
-			$path = getLocalPath('modules/' . $this->MODULE_ID . '/install/step.php');
-			if (file_exists($_SERVER['DOCUMENT_ROOT'] . $path))
-			{
-				$APPLICATION->IncludeAdminFile(GetMessage('IMAWEB_TOOLS_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . $path);
-			}
-		}
-		elseif ($step == 2)
-		{
+            $key = RandString(64);
 
-			if ($this->InstallDB())
-			{
-				$this->InstallEvents();
-				$this->InstallFiles();
-			}
-			$GLOBALS['errors'] = $this->errors;
-			$GLOBALS['install_step'] = 2;
-			$path = getLocalPath('modules/' . $this->MODULE_ID . '/install/step.php');
-			if (file_exists($_SERVER['DOCUMENT_ROOT'] . $path))
-			{
-				$APPLICATION->IncludeAdminFile(GetMessage('IMAWEB_TOOLS_INSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . $path);
-			}
-		}
+            try {
+                Option::set($this->MODULE_ID, 'update_key', $key);
+                $this->hookInstall($key);
+            }
+            catch (ArgumentOutOfRangeException $e) {
+
+            }
+        }
 	}
 
 	function DoUninstall()
 	{
 		global $APPLICATION, $step;
 
-		if ($step < 2)
-		{
-			$GLOBALS['uninstall_step'] = 1;
-			$path = getLocalPath('modules/' . $this->MODULE_ID . '/install/unstep.php');
-			if (file_exists($_SERVER['DOCUMENT_ROOT'] . $path))
-			{
-				$APPLICATION->IncludeAdminFile(GetMessage('IMAWEB_TOOLS_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . $path);
-			}
-		}
-		elseif ($step == 2)
-		{
+        $this->UnInstallDB(array(
+            'savedata' => ($_REQUEST['savedata'] == 'Y'),
+        ));
 
-			$this->UnInstallDB(array(
-				'savedata' => ($_REQUEST['savedata'] == 'Y'),
-			));
+        $this->UnInstallEvents();
+        $this->UnInstallFiles();
+        $GLOBALS['errors'] = $this->errors;
 
-			$this->UnInstallEvents();
-			$this->UnInstallFiles();
-			$GLOBALS['errors'] = $this->errors;
-			$GLOBALS['uninstall_step'] = 2;
-			$path = getLocalPath('modules/' . $this->MODULE_ID . '/install/unstep.php');
-			if (file_exists($_SERVER['DOCUMENT_ROOT'] . $path))
-			{
-				$APPLICATION->IncludeAdminFile(GetMessage('IMAWEB_TOOLS_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . $path);
-			}
-		}
+        try {
+            $key = Option::get($this->MODULE_ID, 'update_key', '');
+            $this->hookUninstall($key);
+        }
+        catch (ArgumentNullException $e) {
+
+        }
+        catch (ArgumentOutOfRangeException $e) {
+
+        }
+
 	}
+
+	function hookInstall($key) {
+	    $client = new HttpClient([
+            'redirect' => true, // true, если нужно выполнять редиректы
+            'redirectMax' => 1, // Максимальное количество редиректов
+            'waitResponse' => true, // true - ждать ответа, false - отключаться после запроса
+            'socketTimeout' => 30, // Таймаут соединения, сек
+            'streamTimeout' => 60, // Таймаут чтения ответа, сек, 0 - без таймаута
+            'version' => HttpClient::HTTP_1_1, // версия HTTP (HttpClient::HTTP_1_0 или HttpClient::HTTP_1_1)
+        ]);
+
+	    $client->post('https://zuyev.pro/api/v1/install/imaweb.tools', [
+	        'host' => $_SERVER['HTTP_HOST'],
+            'key' => $key,
+        ]);
+    }
+
+    function hookUninstall($key) {
+	    $client = new HttpClient([
+            'redirect' => true, // true, если нужно выполнять редиректы
+            'redirectMax' => 1, // Максимальное количество редиректов
+            'waitResponse' => true, // true - ждать ответа, false - отключаться после запроса
+            'socketTimeout' => 30, // Таймаут соединения, сек
+            'streamTimeout' => 60, // Таймаут чтения ответа, сек, 0 - без таймаута
+            'version' => HttpClient::HTTP_1_1, // версия HTTP (HttpClient::HTTP_1_0 или HttpClient::HTTP_1_1)
+        ]);
+
+	    $client->post('https://zuyev.pro/api/v1/install/imaweb.tools', [
+	        'host' => $_SERVER['HTTP_HOST'],
+            'key' => $key,
+            'uninstall' => 'Y',
+        ]);
+    }
+
+
 }
