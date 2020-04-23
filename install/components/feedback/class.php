@@ -94,6 +94,9 @@ class imaweb_feedback extends CBitrixComponent
                     $agreementChecked = true;
                 }
             }
+            else {
+                $agreementChecked = true;
+            }
 
             if ($feedback->validate() && $recaptchaChecked && $agreementChecked)
             {
