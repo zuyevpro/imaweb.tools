@@ -3,15 +3,20 @@
 namespace Imaweb\Tools;
 
 use \Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ArgumentTypeException;
 use Bitrix\Main\DB\SqlQueryException;
 use \Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
+use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\Web\Json;
 use \CIBlockPropertyEnum;
 use \CIBlock;
 use \CIBlockProperty;
 use \CIBlockRights;
 use \CIBlockElement;
 use \CFile;
+use Bitrix\Sale;
 
 abstract class Main
 {
@@ -659,5 +664,47 @@ abstract class Main
         }
 
         return true;
+    }
+
+    public static function getCartItems($returnAsString = false) {
+        $basket = null;
+        try {
+            if (Loader::includeModule('sale')) {
+                global $USER;
+                if ($USER->IsAuthorized())
+                {
+                    $basket = Sale\Basket::loadItemsForFUser(Sale\Fuser::getIdByUserId($USER->GetID()), \Bitrix\Main\Context::getCurrent()->getSite());
+                }
+                else
+                {
+                    $basket = Sale\Basket::loadItemsForFUser(Sale\Fuser::getId(), \Bitrix\Main\Context::getCurrent()->getSite());
+                }
+            }
+        }
+        catch (LoaderException $e) {
+
+        }
+        catch (ArgumentTypeException $e) {
+
+        }
+        catch (ArgumentException $e) {
+
+        }
+        catch (NotImplementedException $e) {
+
+        }
+
+        $result = [];
+
+        if (!is_null($basket)) {
+            foreach ($basket as $basketItem) {
+                $result[] = [
+                    'id' => intval($basketItem->getId()),
+                    'productId' => intval($basketItem->getProductId()),
+                ];
+            }
+        }
+
+        return $returnAsString ? Json::encode($result) : $result;
     }
 }
