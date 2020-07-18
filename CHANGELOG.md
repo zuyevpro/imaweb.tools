@@ -1,5 +1,8 @@
 # Module change history
 
+## 1.0.7 (Jul 18, 2020)
+- Options customizer
+
 ## 1.0.6 (Apr 9, 2020)
 - Install logger
 - Removed unused installer steps

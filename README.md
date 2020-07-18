@@ -11,5 +11,6 @@ Features:
 - custom cart controller based on session for simple projects Bitrix editions without sale module;
 - javascript cart controller;
 - migrations creator & runner;
+- options customizing;
 
 Get the [Changelog file](CHANGELOG.md) for release details.
