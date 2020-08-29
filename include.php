@@ -9,14 +9,6 @@ if (!function_exists('d'))
 	}
 }
 
-if (!function_exists('x'))
-{
-	function x($var, $mode = 'w+', $file = 'x.txt')
-	{
-		Imaweb\Tools\Main::x($var, $mode, $file);
-	}
-}
-
 if (!function_exists('declOfNum'))
 {
 	function declOfNum($num, $titles)
@@ -25,26 +17,6 @@ if (!function_exists('declOfNum'))
 	}
 }
 
-if (!function_exists('cutString'))
-{
-	function cutString($str, $maxLen)
-	{
-		return Imaweb\Tools\Main::cutString($str, $maxLen);
-	}
-}
-
-if (!function_exists('getFullYears'))
-{
-	function getFullYears($birthDate)
-	{
-		return Imaweb\Tools\Main::getFullYears($birthDate);
-	}
-}
-
-if (!function_exists('formatPhone'))
-{
-	function formatPhone($phone)
-	{
-		return Imaweb\Tools\Main::formatPhone($phone);
-	}
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
 }
