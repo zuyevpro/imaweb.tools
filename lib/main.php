@@ -2,10 +2,11 @@
 
 namespace Imaweb\Tools;
 
-use \Bitrix\Main\Application;
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlQueryException;
-use \Bitrix\Main\Loader;
+use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
+use Bitrix\Main\Web\Json;
 use \CIBlockPropertyEnum;
 use \CIBlock;
 use \CIBlockProperty;
@@ -659,5 +660,46 @@ abstract class Main
         }
 
         return true;
+    }
+
+    public static function getCartItems($returnAsString = false) {
+        $basket = null;
+        try {
+            if (Loader::includeModule('sale')) {
+                global $USER;
+                if ($USER->IsAuthorized())
+                {
+                    $basket = Bitrix\Sale\Basket::loadItemsForFUser(
+                        Bitrix\Sale\Fuser::getIdByUserId(
+                            $USER->GetID()
+                        ),
+                        \Bitrix\Main\Context::getCurrent()->getSite()
+                    );
+                }
+                else
+                {
+                    $basket = Bitrix\Sale\Basket::loadItemsForFUser(
+                        Bitrix\Sale\Fuser::getId(),
+                        \Bitrix\Main\Context::getCurrent()->getSite()
+                    );
+                }
+            }
+        }
+        catch (LoaderException $e) {
+
+        }
+
+        $result = [];
+
+        if (!is_null($basket)) {
+            foreach ($basket as $basketItem) {
+                $result[] = [
+                    'id' => intval($basketItem->getId()),
+                    'productId' => intval($basketItem->getProductId()),
+                ];
+            }
+        }
+
+        return $returnAsString ? Json::encode($result) : $result;
     }
 }

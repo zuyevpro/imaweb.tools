@@ -1,7 +1,13 @@
 # Module change history
 
+## 1.0.8 (Aug 30, 2020)
+- Compare controller helper for backend, frontend
+- JS cart controller refactoring
+- Migrations engine refactoring
+- Module options customizer fix
+
 ## 1.0.7 (Jul 18, 2020)
-- Options customizer
+- Module options customizer
 
 ## 1.0.6 (Apr 9, 2020)
 - Install logger
