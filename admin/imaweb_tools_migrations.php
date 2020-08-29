@@ -2,9 +2,10 @@
 
 $moduleName = 'imaweb.tools';
 
-use Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Imaweb\Tools\Migration;
+use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
+use Bitrix\Main\Localization\Loc;
+use Imaweb\Tools\MigrationEngine;
 
 global $APPLICATION;
 
@@ -12,7 +13,13 @@ global $APPLICATION;
  * @global $action
  */
 
-Loader::includeModule($moduleName);
+try {
+    Loader::includeModule($moduleName);
+}
+catch (LoaderException $e) {
+    ShowError("Can't load module imaweb.tools");
+    return;
+}
 
 Loc::loadLanguageFile(__FILE__);
 
@@ -38,12 +45,12 @@ if (!is_null($action))
 	{
 		case 'new':
 		{
-			$result = Migration::add(htmlspecialchars($_POST['name']));
+			$result = MigrationEngine::getInstance()->add(htmlspecialchars($_POST['name']));
 			if (!$result)
 			{
 				$actionResult = array(
 					'status' => false,
-					'message' => Migration::getLastError(),
+					'message' => MigrationEngine::getInstance()->getLastError(),
 				);
 			}
 			else
@@ -56,12 +63,12 @@ if (!is_null($action))
 		}
 		case 'run':
 		{
-			$result = Migration::run(!isset($_REQUEST['rollback']));
+			$result = MigrationEngine::getInstance()->run(!isset($_REQUEST['rollback']));
 			if (!$result)
 			{
 				$actionResult = array(
 					'status' => false,
-					'message' => Migration::getLastError(),
+					'message' => MigrationEngine::getInstance()->getLastError(),
 				);
 			}
 			else
@@ -74,12 +81,12 @@ if (!is_null($action))
 			break;
 		}
 		case 'clear': {
-			$result = Migration::clear();
+			$result = MigrationEngine::getInstance()->clear();
 			if (!$result)
 			{
 				$actionResult = array(
 					'status' => false,
-					'message' => Migration::getLastError(),
+					'message' => MigrationEngine::getInstance()->getLastError(),
 				);
 			}
 			else
@@ -95,7 +102,7 @@ if (!is_null($action))
 	ob_end_clean();
 }
 
-$arData = Migration::getList();
+$arData = MigrationEngine::getInstance()->getList();
 usort($arData, function($a, $b)
 {
 	return $a < $b ? 1 : -1;
@@ -161,11 +168,11 @@ $listTopButtons = array(
 		'LINK' => 'javascript:rollbackMigrations();',
 		'TITLE' => Loc::getMessage('MIGRATION_ROLLBACK'),
 	),
-	array(
-		'TEXT' => Loc::getMessage('MIGRATION_CLEAR_OLD'),
-		'LINK' => 'javascript:clearAppliedMigrations();',
-		'TITLE' => Loc::getMessage('MIGRATION_CLEAR_OLD'),
-	),
+//	array(
+//		'TEXT' => Loc::getMessage('MIGRATION_CLEAR_OLD'),
+//		'LINK' => 'javascript:clearAppliedMigrations();',
+//		'TITLE' => Loc::getMessage('MIGRATION_CLEAR_OLD'),
+//	),
 );
 
 $lAdmin->AddAdminContextMenu($listTopButtons, false, false);

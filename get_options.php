@@ -16,7 +16,13 @@ $arAllOptions = array(
                 "checkbox",
             ),
         ),
-
+        array(
+            "show_migrations_in_menu",
+            GetMessage('IMAWEB_TOOLS_SHOW_MIGRATIONS_IN_MENU'),
+            array(
+                "checkbox",
+            ),
+        ),
     ),
     array(
         array(

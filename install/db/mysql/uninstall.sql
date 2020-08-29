@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS imaweb_tools_migrations;
