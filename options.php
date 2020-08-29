@@ -16,8 +16,11 @@ if ($RIGHT_W):
     IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/main/options.php');
     IncludeModuleLangFile(__FILE__);
 
-    $path = $_SERVER['DOCUMENT_ROOT'] . getLocalPath('php_interface/include/imaweb.tools/get_options.php');
-    if (!file_exists($path)) {
+    $path = getLocalPath('php_interface/include/imaweb.tools/get_options.php');
+    if ($path) {
+        $path = $_SERVER['DOCUMENT_ROOT'] . $path;
+    }
+    else {
         $path = __DIR__ . '/get_options.php';
     }
 
