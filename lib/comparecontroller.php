@@ -1,4 +1,5 @@
 <?php
+
 namespace Imaweb\Tools;
 
 use Bitrix\Main\Web\Json;
@@ -9,8 +10,7 @@ class CompareController {
     private static $_instances = []; // iblock id => instance
     private $iblockId;
 
-    private function __construct($iblockId)
-    {
+    private function __construct($iblockId) {
         $this->iblockId = $iblockId;
     }
 

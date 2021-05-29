@@ -1,17 +1,20 @@
 <?
+
 namespace Imaweb\Tools;
-use Bitrix\Main\Loader,
-    Bitrix\Main\LoaderException,
-    \Imaweb\Tools\Exceptions\FeedbackSaveException,
-    \CIBlockProperty,
-    \CIBlockPropertyEnum,
-    \CIBlockSection,
-    \CIBlockElement;
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
+use \Imaweb\Tools\Exceptions\FeedbackSaveException;
+use \CIBlockProperty;
+use \CIBlockPropertyEnum;
+use \CIBlockSection;
+use \CIBlockElement;
 
-class Feedback
-{
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) {
+    die();
+}
+
+class Feedback {
     private $iblockId = 0; /// Идентификатор инфоблока, из которого собран экземпляр класса.
     private $skipValidationFields = []; /// Массив кодов полей, валидацию которых необходимо пропустить
 
@@ -26,8 +29,7 @@ class Feedback
     const VALIDATOR_EMAIL = 4;
     const VALIDATOR_PHONE = 5;
 
-    public static function factory(int $iblockId): Feedback
-    {
+    public static function factory(int $iblockId): Feedback {
         return new self($iblockId);
     }
 
@@ -35,12 +37,10 @@ class Feedback
      * IblockFeedback constructor.
      * @param int $iblockId - ИД инфоблока
      */
-    public function __construct(int $iblockId)
-    {
+    public function __construct(int $iblockId) {
         try {
             Loader::includeModule('iblock');
-        }
-        catch (LoaderException $e) {
+        } catch (LoaderException $e) {
             return;
         }
 
@@ -54,15 +54,12 @@ class Feedback
             'ACTIVE' => 'Y',
         ]);
 
-        while ($arField = $obFields->GetNext())
-        {
-            if ($arField['IS_REQUIRED'] !== 'Y')
-            {
+        while ($arField = $obFields->GetNext()) {
+            if ($arField['IS_REQUIRED'] !== 'Y') {
                 $this->skipValidationFields[] = $arField['CODE'];
             }
 
-            switch ($arField['PROPERTY_TYPE'])
-            {
+            switch ($arField['PROPERTY_TYPE']) {
                 case 'S':
                 {
                     $this->validatorConfig[$arField['CODE']] = array(
@@ -94,8 +91,7 @@ class Feedback
                         'VALUES' => [],
                     );
 
-                    if (!in_array($arField['CODE'], $this->skipValidationFields))
-                    {
+                    if (!in_array($arField['CODE'], $this->skipValidationFields)) {
                         $res = (new CIBlockPropertyEnum())->GetList([
                             'SORT' => 'ASC',
                             'NAME' => 'ASC',
@@ -104,8 +100,7 @@ class Feedback
                             'ACTIVE' => 'Y',
                         ]);
 
-                        while ($r = $res->GetNext())
-                        {
+                        while ($r = $res->GetNext()) {
                             $this->validatorConfig[$arField['CODE']]['VALUES'][$r['ID']] = $r['VALUE'];
                         }
                     }
@@ -121,8 +116,7 @@ class Feedback
                         'VALUES' => [],
                     );
 
-                    if (!in_array($arField['CODE'], $this->skipValidationFields))
-                    {
+                    if (!in_array($arField['CODE'], $this->skipValidationFields)) {
                         $res = (new CIBlockSection())->GetList([
                             'SORT' => 'ASC',
                             'NAME' => 'ASC',
@@ -134,8 +128,7 @@ class Feedback
                             'NAME',
                         ]);
 
-                        while ($r = $res->Fetch())
-                        {
+                        while ($r = $res->Fetch()) {
                             $this->validatorConfig[$arField['CODE']][$r['ID']] = $r['NAME'];
                         }
                     }
@@ -151,8 +144,7 @@ class Feedback
                         'VALUES' => [],
                     );
 
-                    if (!in_array($arField['CODE'], $this->skipValidationFields))
-                    {
+                    if (!in_array($arField['CODE'], $this->skipValidationFields)) {
                         $res = (new CIBlockElement())->GetList([
                             'SORT' => 'ASC',
                             'NAME' => 'ASC',
@@ -164,8 +156,7 @@ class Feedback
                             'NAME',
                         ]);
 
-                        while ($r = $res->Fetch())
-                        {
+                        while ($r = $res->Fetch()) {
                             $this->validatorConfig[$arField['CODE']]['VALUES'][$r['ID']] = $r['NAME'];
                         }
                     }
@@ -186,10 +177,8 @@ class Feedback
      * TODO: описать структуру массив $arConfig
      * @return bool
      */
-    public function setValidator($fieldCode, $arConfig): bool
-    {
-        if (!array_key_exists($fieldCode, $this->validatorConfig))
-        {
+    public function setValidator($fieldCode, $arConfig): bool {
+        if (!array_key_exists($fieldCode, $this->validatorConfig)) {
             return false;
         }
 
@@ -201,24 +190,21 @@ class Feedback
     /**
      * @param array $data Ассоциативный массив данных к сохранению, где ключ - символьный код поля.
      */
-    public function setData(array $data): void
-    {
+    public function setData(array $data): void {
         $this->data = $data;
     }
 
     /**
      * @return array
      */
-    public function getErrors(): array
-    {
+    public function getErrors(): array {
         return $this->errors;
     }
 
     /**
      * @return array
      */
-    public function getValidatorConfig(): array
-    {
+    public function getValidatorConfig(): array {
         return $this->validatorConfig;
     }
 
@@ -226,32 +212,26 @@ class Feedback
      * Метод валидации данных
      * @return bool
      */
-    public function validate(): bool
-    {
+    public function validate(): bool {
         $this->errors = [];
 
-        foreach ($this->data as $fieldCode => $fieldValue)
-        {
+        foreach ($this->data as $fieldCode => $fieldValue) {
             $fieldValue = (string)$fieldValue;
 
-            if (!array_key_exists($fieldCode, $this->validatorConfig))
-            {
+            if (!array_key_exists($fieldCode, $this->validatorConfig)) {
                 unset($this->data[$fieldCode]);
                 continue;
             }
 
-            if (in_array($fieldCode, $this->skipValidationFields))
-            {
+            if (in_array($fieldCode, $this->skipValidationFields)) {
                 continue;
             }
 
             $arConfig =& $this->validatorConfig[$fieldCode];
-            switch ($arConfig['TYPE'])
-            {
+            switch ($arConfig['TYPE']) {
                 case Feedback::VALIDATOR_STRING:
                 {
-                    if (strlen($fieldValue) < $arConfig['MIN_LENGTH'] || strlen($fieldValue) > $arConfig['MAX_LENGTH'])
-                    {
+                    if (strlen($fieldValue) < $arConfig['MIN_LENGTH'] || strlen($fieldValue) > $arConfig['MAX_LENGTH']) {
                         $this->errors[] = $fieldCode;
                     }
 
@@ -260,8 +240,7 @@ class Feedback
                 case Feedback::VALIDATOR_NUMBER:
                 {
                     $fieldValue = (float)$fieldValue;
-                    if ($fieldValue < $arConfig['MIN'] || $fieldValue > $arConfig['MAX'])
-                    {
+                    if ($fieldValue < $arConfig['MIN'] || $fieldValue > $arConfig['MAX']) {
                         $this->errors[] = $fieldCode;
                     }
 
@@ -269,16 +248,14 @@ class Feedback
                 }
                 case Feedback::VALIDATOR_LIST:
                 {
-                    if (!array_key_exists($fieldValue, $arConfig['VALUES']))
-                    {
+                    if (!array_key_exists($fieldValue, $arConfig['VALUES'])) {
                         $this->errors[] = $fieldCode;
                     }
                     break;
                 }
                 case Feedback::VALIDATOR_EMAIL:
                 {
-                    if (!filter_var($fieldValue, FILTER_VALIDATE_EMAIL))
-                    {
+                    if (!filter_var($fieldValue, FILTER_VALIDATE_EMAIL)) {
                         $this->errors[] = $fieldCode;
                     }
                     break;
@@ -286,8 +263,7 @@ class Feedback
                 case Feedback::VALIDATOR_PHONE:
                 {
                     $val = preg_replace('/([^0-9])/', '', $fieldValue);
-                    if (strlen($val) < 6)
-                    {
+                    if (strlen($val) < 6) {
                         $this->errors[] = $fieldCode;
                     }
                     break;
@@ -303,8 +279,7 @@ class Feedback
      * @return bool
      * @throws FeedbackSaveException
      */
-    public function save(): bool
-    {
+    public function save(): bool {
         $arFields = [
             'IBLOCK_ID' => $this->iblockId,
             'ACTIVE' => 'N',
@@ -313,8 +288,7 @@ class Feedback
         ];
 
         $el = new CIBlockElement();
-        if (!$el->Add($arFields))
-        {
+        if (!$el->Add($arFields)) {
             throw new FeedbackSaveException($el->LAST_ERROR);
         }
 
@@ -324,8 +298,7 @@ class Feedback
     /**
      * @return array
      */
-    public function getData(): array
-    {
+    public function getData(): array {
         return $this->data;
     }
 }

@@ -80,11 +80,11 @@ class imaweb_tools extends CModule {
     function InstallEvents() {
         $em = EventManager::getInstance();
 
-        $em->registerEventHandlerCompatible('main', 'OnEpilog', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "AddCustomScriptOrStyle");
-        $em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "CheckReCaptcha");
+        $em->registerEventHandlerCompatible('main', 'OnEpilog', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "addCustomScriptOrStyle");
+        $em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "checkReCaptcha");
         $em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineIblockConstants");
         $em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineWebFormConstants");
-        $em->registerEventHandlerCompatible('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "SetDefaultIblockRights");
+        $em->registerEventHandlerCompatible('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "setDefaultIblockRights");
         $em->registerEventHandlerCompatible('form', 'onBeforeResultAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "captchaChecking");
 
         return true;
@@ -93,11 +93,11 @@ class imaweb_tools extends CModule {
     function UnInstallEvents() {
         $em = EventManager::getInstance();
 
-        $em->unRegisterEventHandler('main', 'OnEpilog', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "AddCustomScriptOrStyle");
-        $em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "CheckReCaptcha");
+        $em->unRegisterEventHandler('main', 'OnEpilog', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "addCustomScriptOrStyle");
+        $em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "checkReCaptcha");
         $em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineIblockConstants");
         $em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineWebFormConstants");
-        $em->unRegisterEventHandler('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "SetDefaultIblockRights");
+        $em->unRegisterEventHandler('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "setDefaultIblockRights");
         $em->unRegisterEventHandler('form', 'onBeforeResultAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "captchaChecking");
 
         return true;

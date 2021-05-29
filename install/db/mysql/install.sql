@@ -6,3 +6,18 @@ CREATE TABLE IF NOT EXISTS imaweb_tools_migrations
     CONSTRAINT imaweb_tools_migrations_pk
         PRIMARY KEY (id)
 );
+
+CREATE TABLE imaweb_tools_redirect
+(
+    ID INT AUTO_INCREMENT,
+    OLD_URL VARCHAR(255) NOT NULL,
+    NEW_URL VARCHAR(255) NOT NULL,
+    TYPE INT NOT NULL,
+    CONSTRAINT imaweb_redirect_pk
+        PRIMARY KEY (ID)
+);
+
+CREATE UNIQUE INDEX IMAWEB_REDIRECT_OLD_URL_UINDEX
+    ON imaweb_tools_redirect (OLD_URL);
+
+

@@ -1,4 +1,5 @@
 <?php
+
 namespace Imaweb\Tools;
 
 /**
@@ -18,8 +19,7 @@ class Asset {
     /**
      * Asset constructor.
      */
-    public function __construct()
-    {
+    public function __construct() {
         $this->asset = \Bitrix\Main\Page\Asset::getInstance();
     }
 
@@ -31,15 +31,13 @@ class Asset {
         return self::$_instance;
     }
 
-    public function __call($name, $arguments)
-    {
+    public function __call($name, $arguments) {
         if (!method_exists($this, $name) && method_exists($this->asset, $name)) {
             call_user_func_array([$this->asset, $name], $arguments);
         }
     }
 
-    private function __clone()
-    {
+    private function __clone() {
 
     }
 

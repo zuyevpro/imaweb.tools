@@ -1,12 +1,12 @@
 <?
+
 namespace Imaweb\Tools;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\SystemException;
 use \Exception;
 
-class Logger
-{
+class Logger {
     private $baseDir = null; /// Здесь хранится базовая директория хранения файла с логами.
     private $file = null; /// Указатель на файл.
     private $start = 0; /// Время создания экземпляра класса в мкс..
@@ -34,8 +34,7 @@ class Logger
 
         try {
             $this->ip = Application::getInstance()->getContext()->getRequest()->getRemoteAddress();
-        }
-        catch (SystemException $e) {
+        } catch (SystemException $e) {
 
         }
 
@@ -88,16 +87,11 @@ class Logger
                 }
             }
 
-            $line = date("[d.m.Y H:i:s]")
-                . ' [' . sprintf("%.3f", $latency) . '] (' . $level . ') | '
-                . $msg . ' '
-                . json_encode($ctx, JSON_UNESCAPED_UNICODE) . ' '
-                . json_encode(array(
+            $line = date("[d.m.Y H:i:s]") . ' [' . sprintf("%.3f", $latency) . '] (' . $level . ') | ' . $msg . ' ' . json_encode($ctx, JSON_UNESCAPED_UNICODE) . ' ' . json_encode(array(
                     'memory_usage' => $this->getMemoryPeakUsage(),
                     'cli' => php_sapi_name() === 'cli',
                     'ip' => $this->ip,
-                ), JSON_UNESCAPED_UNICODE)
-                . "\n";
+                ), JSON_UNESCAPED_UNICODE) . "\n";
 
             if (!is_null($this->file)) {
                 fwrite($this->file, $line);
@@ -163,20 +157,18 @@ class Logger
      * @brief Возвращает время с момента создания экземпляра класса.
      * @return mixed
      */
-    public function getLatency()
-    {
+    public function getLatency() {
         return round(microtime(true) - $this->start, 3);
     }
 
-    public function getMemoryPeakUsage()
-    {
+    public function getMemoryPeakUsage() {
         return memory_get_peak_usage(true);
     }
 
     /**
-     * @deprecated
      * @param $variable
      * @param string $sign
+     * @deprecated
      */
     public function dump($variable, $sign = 'variable') {
         $this->info('dump', [
@@ -184,34 +176,33 @@ class Logger
         ]);
     }
 
-	public function cleanOldData($baseDir = null, $numDays = 30) {
-		if (is_null($baseDir)) {
-			$baseDir = $this->baseDir . '*/*/*/';
-		}
+    public function cleanOldData($baseDir = null, $numDays = 30) {
+        if (is_null($baseDir)) {
+            $baseDir = $this->baseDir . '*/*/*/';
+        }
 
-		$arFiles = glob($baseDir);
+        $arFiles = glob($baseDir);
 
-		$totalCleaned = 0;
+        $totalCleaned = 0;
 
-		foreach ($arFiles as $filePath) {
-			$timestamp = filemtime($filePath);
+        foreach ($arFiles as $filePath) {
+            $timestamp = filemtime($filePath);
 
-			if ($timestamp < time() - $numDays*86400) {
-				$totalCleaned += filesize($filePath);
-				if (is_file($filePath)) {
-					unlink($filePath);
-				}
-			}
-		}
-	}
+            if ($timestamp < time() - $numDays * 86400) {
+                $totalCleaned += filesize($filePath);
+                if (is_file($filePath)) {
+                    unlink($filePath);
+                }
+            }
+        }
+    }
 
     /**
      * @param null $flag
-     * @deprecated
      * @return bool
+     * @deprecated
      */
-    public function enabled($flag = null)
-    {
+    public function enabled($flag = null) {
         return true;
     }
 }

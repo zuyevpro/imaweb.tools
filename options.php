@@ -80,7 +80,7 @@ if ($RIGHT_W):
 
         <?foreach ($arAllOptions as $key => $arOptionGroup):
             foreach ($arOptionGroup as $arOption):
-                $val = COption::GetOptionString($module_id, $arOption[0]);
+                $val = htmlentities(COption::GetOptionString($module_id, $arOption[0]));
 
                 $paramHtmlId = 'param_' . rand(1,99999);
                 ?>
