@@ -86,6 +86,7 @@ class imaweb_tools extends CModule {
         $em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineWebFormConstants");
         $em->registerEventHandlerCompatible('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "setDefaultIblockRights");
         $em->registerEventHandlerCompatible('form', 'onBeforeResultAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "captchaChecking");
+        $em->registerEventHandlerCompatible('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "redirectCheck");
 
         return true;
     }
@@ -99,6 +100,7 @@ class imaweb_tools extends CModule {
         $em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "defineWebFormConstants");
         $em->unRegisterEventHandler('iblock', 'OnBeforeIBlockAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "setDefaultIblockRights");
         $em->unRegisterEventHandler('form', 'onBeforeResultAdd', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "captchaChecking");
+        $em->unRegisterEventHandler('main', 'OnPageStart', 'imaweb.tools', "\\Imaweb\\Tools\\Handlers", "redirectCheck");
 
         return true;
     }

@@ -7,6 +7,8 @@ use \Bitrix\Main\Loader;
 use \Bitrix\Main\Page\Asset;
 use \Bitrix\Main\Web\HttpClient;
 use \Bitrix\Iblock\IblockTable;
+use Bitrix\Main\Context;
+use Bitrix\Main\Web\Uri;
 
 abstract class Handlers {
 
@@ -115,6 +117,56 @@ abstract class Handlers {
 
         if (defined('RECAPTCHA_CHECKED') && !RECAPTCHA_CHECKED) {
             $APPLICATION->ThrowException('Проверка reCaptcha не пройдена');
+        }
+    }
+
+    public static function redirectCheck() {
+        $request = Context::getCurrent()->getRequest();
+
+        $obRedirects = RedirectTable::getList([
+            'filter' => [
+                '=ACTIVE' => 'Y',
+                '=SITE_ID' => SITE_ID,
+                '=OLD_URL' => $request->getRequestUri(),
+            ],
+            'select' => [
+                'NEW_URL',
+                'TYPE',
+            ]
+        ]);
+
+        if ($obRedirects->getSelectedRowsCount() == 0) {
+            $uri = new Uri($request->getRequestUri());
+            $obRedirects = RedirectTable::getList([
+                'filter' => [
+                    '=ACTIVE' => 'Y',
+                    '=SITE_ID' => SITE_ID,
+                    '=OLD_URL' => $uri->getPath(),
+                ],
+                'select' => [
+                    'NEW_URL',
+                    'TYPE',
+                ]
+            ]);
+
+            $arRedirect = $obRedirects->fetch();
+        }
+        else {
+            $arRedirect = $obRedirects->fetch();
+        }
+
+        if ($arRedirect) {
+            $status = null;
+            if ($arRedirect['TYPE'] == 301) {
+                $status = '301 Moved Permanently';
+            }
+            elseif ($arRedirect['TYPE'] == 302) {
+                $status = '302 Found';
+            }
+
+            LocalRedirect($arRedirect['NEW_URL'], false, $status);
+            \CMain::FinalActions();
+            die;
         }
     }
 }
