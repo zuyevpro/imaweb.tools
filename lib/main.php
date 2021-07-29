@@ -248,9 +248,18 @@ abstract class Main {
      * @param bool $bCopyRights - whether to copy rights settings. Default true.
      * @param bool $bCopyProps - whether to copy iblock properties. Default true.
      * @param bool $bCopyElements - whether to copy iblock elements. Default false.
+     * @param string $iblockCode - new iblock code. Set false if you want to save the same one.
      * @return bool
      */
-    public static function copyIblock($iblockId, $iblockType, $arSiteId, $bCopyRights = true, $bCopyProps = true, $bCopyElements = false) {
+    public static function copyIblock(
+        $iblockId,
+        $iblockType,
+        $arSiteId,
+        $bCopyRights = true,
+        $bCopyProps = true,
+        $bCopyElements = false,
+        $iblockCode = false
+    ) {
         $conn = Application::getConnection();
 
         try {
@@ -289,7 +298,16 @@ abstract class Main {
         }
 
         if (array_key_exists('API_CODE', $arIblock)) {
-            $arIblock['API_CODE'] = $arIblock['API_CODE'] . '_' . uniqid();
+            if (empty($arIblock['API_CODE'])) {
+                $arIblock['API_CODE'] = uniqid();
+            }
+            else {
+                $arIblock['API_CODE'] = $arIblock['API_CODE'] . uniqid();
+            }
+        }
+
+        if ($iblockCode !== false) {
+            $arIblock['CODE'] = $iblockCode;
         }
 
         $newIblockId = $iblock->Add($arIblock);

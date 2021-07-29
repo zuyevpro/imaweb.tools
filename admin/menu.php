@@ -32,6 +32,7 @@ if (Loader::includeModule('imaweb.tools') && $APPLICATION->GetGroupRight("imaweb
         "icon" => "util_menu_icon",
         "more_url" => [
             '/bitrix/admin/imaweb_tools_redirect_edit.php',
+            '/bitrix/admin/imaweb_tools_redirects_import.php',
         ],
     ];
 

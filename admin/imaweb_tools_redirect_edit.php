@@ -156,7 +156,7 @@ $tabControl = new CAdminTabControl("tabControl", [
     [
         'DIV' => 'edit1',
         'TAB' => 'AB-тест',
-        'TITLE' => 'Информация об AB-тесте',
+        'TITLE' => 'Информация о редиректе',
     ]
 ]);
 

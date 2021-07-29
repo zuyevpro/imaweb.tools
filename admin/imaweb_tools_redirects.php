@@ -180,7 +180,9 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
     <div class="adm-toolbar-panel-align-right">
         <div class="btn-panel ui-btn-primary">
             <a class="ui-btn-main" href="/bitrix/admin/imaweb_tools_redirect_edit.php?lang=<?=LANGUAGE_ID?>">Добавить</a>
+	        <a class="ui-btn-main" href="/bitrix/admin/imaweb_tools_redirects_import.php?lang=<?=LANGUAGE_ID?>">Импорт</a>
         </div>
+
     </div>
 </div>
 
