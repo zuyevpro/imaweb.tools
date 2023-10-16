@@ -77,7 +77,7 @@ class Logger {
         if ($level >= $this->minLevel) {
             $latency = round(microtime(true) - $this->start, 3);
 
-            if (array_key_exists('exception', $ctx)) {
+            if (is_array($ctx) && array_key_exists('exception', $ctx)) {
                 if ($ctx['exception'] instanceof Exception) {
                     $ctx['exception'] = [
                         'message' => $ctx['exception']->getMessage(),

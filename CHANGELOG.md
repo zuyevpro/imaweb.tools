@@ -1,5 +1,9 @@
 # Module change history
 
+## 1.0.9 (Oc 16, 2023)
+- Logger fix for php 8.x
+- Asset dir customization
+
 ## 1.0.8 (Aug 30, 2020)
 - Compare controller helper for backend, frontend
 - JS cart controller refactoring
