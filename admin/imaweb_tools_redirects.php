@@ -139,6 +139,7 @@ $obRows = \Imaweb\Tools\RedirectTable::getList([
     'order' => $sort['sort'],
     'filter' => $filter,
     'limit' => $navParams['nPageSize'],
+    'offset' => $navParams['nPageSize'] * ($navParams['iNumPage']-1)
 ]);
 
 while ($arRow = $obRows->fetch()) {
